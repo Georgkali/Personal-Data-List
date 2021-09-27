@@ -9,12 +9,14 @@ class Pdl
 {
     private Writer $writer;
     private Reader $reader;
+    public string $url;
 
 
-    public function __construct()
+    public function __construct(string $url)
     {
-        $this->writer = Writer::createFromPath('app/data.csv', 'a+');
-        $this->reader = Reader::createFromPath("app/data.csv", "r");
+        $this->url = $url;
+        $this->writer = Writer::createFromPath($url, 'a+');
+        $this->reader = Reader::createFromPath($url, "r");
 
     }
 
