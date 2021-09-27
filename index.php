@@ -2,20 +2,19 @@
 
 require_once "vendor/autoload.php";
 
-use App\Pdl;
+use App\Storage;
+use App\Person;
 
-$data = new Pdl();
+$data = new Storage("app/data.csv");
+
 
 if (isset($_POST['name'])) {
-    $data->writer()->insertOne([$_POST["name"], $_POST["surname"], $_POST["code"], $_POST["addInfo"]]);
+    $person = new Person($_POST["name"], $_POST["surname"], $_POST["personalNumber"], $_POST["addInfo"]);
+    $data->writer()->insertOne($person->toArray());
     header("location: http://localhost:8000");
 
 }
 
-
-$iterable = $data->reader()->getRecords();
-$list = iterator_to_array($iterable);
-//var_dump($list);
 ?>
 
 <!doctype html>
@@ -34,8 +33,8 @@ $list = iterator_to_array($iterable);
         <input name="name" type="text" required></label><br><br>
     <label for="surname">Surname:
         <input name="surname" type="text" required></label><br><br>
-    <label for="code">Personal code:
-        <input name="code" type="text" required></label><br><br>
+    <label for="personalNumber">Personal code:
+        <input name="personalNumber" type="text" required></label><br><br>
     <label for="addInfo">Additional information:
         <textarea name="addInfo"></textarea></label><br><br>
     <button type="submit">Add</button>
@@ -51,15 +50,13 @@ $list = iterator_to_array($iterable);
 
 </form>
 <?php
-if(isset($_GET["search"])) {
-    $searchResult = $data->search($_GET["search"]);
-    $string = implode(',' ,$searchResult);
-    echo "<p> $string </p>";
+if (isset($_GET["search"])) {
+    $person = $data->search($_GET["search"]);
     echo "<form method='post'> <button name='delete' type='submit'>Delete?</button> </form><br>";
-    if(isset($_POST['delete'])) {
-        $data->delete($string);
-        var_dump(iterator_to_array($iterable));
+   if (isset($_POST['delete'])) {
+   $data->delete($person);
     }
+
 }
 
 ?>

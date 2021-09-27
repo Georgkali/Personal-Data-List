@@ -5,7 +5,7 @@ namespace app;
 use League\Csv\Writer;
 use League\Csv\Reader;
 
-class Pdl
+class Storage
 {
     private Writer $writer;
     private Reader $reader;
@@ -30,26 +30,25 @@ class Pdl
         return $this->reader;
     }
 
-    public function search(string $code): array
+    public function search(string $search)
     {
-        $result = [];
-        $iterable = $this->reader()->getRecords();
-        foreach ($iterable as $array) {
-            if (in_array($code, $array)) {
-                $result = $array;
-            }
-
-        }
-        return $result;
-    }
-
-    public function delete(string $result)
-    {
-        $iterable = $this->reader()->getRecords();
-        foreach ($iterable as $array) {
-            if ($array == $this->search($result)) {
-                unset($array);
+        $records = $this->reader->getRecords();
+        foreach ($records as $key => $record) {
+            if ($record[2] === $search) {
+                return $key;
             }
         }
     }
+
+    public function delete(int $index): void
+    {
+        $records = iterator_to_array($this->reader->getRecords());
+        $writer = Writer::createFromPath($this->url, "w+");
+        array_splice($records, $index, 1);
+        $writer->insertAll($records);
+
+
+    }
+
+
 }
